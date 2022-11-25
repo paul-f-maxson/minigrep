@@ -14,9 +14,12 @@ fn main() {
     run(config);
 }
 
+fn run(Config::Config { query, file_path }: Config::Config) {
+    let contents = fs::read(file_path).expect("Should have been able to read file");
+}
+
 mod Config {
     use std::fmt::Display;
-    use std::io;
 
     pub struct Config {
         pub query: String,
@@ -56,8 +59,4 @@ mod Config {
             Ok(Config { query, file_path })
         }
     }
-}
-
-fn run(Config::Config { query, file_path }: Config::Config) {
-    let contents = fs::read(file_path).expect("Should have been able to read file");
 }
