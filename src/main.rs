@@ -1,9 +1,10 @@
 use std::env;
-use std::fs;
 use std::process;
 
 fn main() {
-    use crate::Config::Config;
+    use minigrep::config::Config;
+    use minigrep::run::run;
+
     let args: Vec<String> = env::args().collect();
 
     let config = Config::build(&args).unwrap_or_else(|err| {
@@ -11,52 +12,10 @@ fn main() {
         process::exit(1);
     });
 
-    run(config);
-}
+    println!("searching for \"{}\" in {}", config.query, config.file_path);
 
-fn run(Config::Config { query, file_path }: Config::Config) {
-    let contents = fs::read(file_path).expect("Should have been able to read file");
-}
-
-mod Config {
-    use std::fmt::Display;
-
-    pub struct Config {
-        pub query: String,
-        pub file_path: String,
-    }
-
-    pub enum ConfigError {
-        InputError,
-    }
-
-    impl Display for ConfigError {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            match *self {
-                ConfigError::InputError => write!(f, "two arguments required"),
-            }
-        }
-    }
-
-    impl Config {
-        pub fn build(args: &[String]) -> Result<Config, ConfigError> {
-            let query = {
-                if let Some(val) = args.get(1) {
-                    val.clone()
-                } else {
-                    return Err(ConfigError::InputError);
-                }
-            };
-
-            let file_path = {
-                if let Some(val) = args.get(2) {
-                    val.clone()
-                } else {
-                    return Err(ConfigError::InputError);
-                }
-            };
-
-            Ok(Config { query, file_path })
-        }
-    }
+    if let Err(e) = run(config) {
+        println!("Application error: {e}");
+        process::exit(1);
+    };
 }
