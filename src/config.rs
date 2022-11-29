@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{env, fmt::Display};
 
 pub struct Config {
     pub query: String,
@@ -40,7 +40,7 @@ impl Config {
             if let Some(val) = args.get(3) {
                 vec!["true".to_owned(), "yes".to_owned(), "ignorecase".to_owned()].contains(val)
             } else {
-                return Err(ConfigError::InputError);
+                env::var("IGNORE_CASE").is_ok()
             }
         };
 
