@@ -19,29 +19,25 @@ impl Display for ConfigError {
 }
 
 impl Config {
-    pub fn build(args: &[String]) -> Result<Config, ConfigError> {
-        let query = {
-            if let Some(val) = args.get(1) {
-                val.clone()
-            } else {
-                return Err(ConfigError::InputError);
-            }
+    pub fn build(mut args: impl Iterator<Item = String>) -> Result<Config, ConfigError> {
+        // Discard first arg (name of program)
+        args.next();
+
+        let query = match args.next() {
+            Some(arg) => arg,
+            None => return Err(ConfigError::InputError),
         };
 
-        let file_path = {
-            if let Some(val) = args.get(2) {
-                val.clone()
-            } else {
-                return Err(ConfigError::InputError);
-            }
+        let file_path = match args.next() {
+            Some(arg) => arg,
+            None => return Err(ConfigError::InputError),
         };
 
-        let ignore_case = {
-            if let Some(val) = args.get(3) {
-                vec!["true".to_owned(), "yes".to_owned(), "ignorecase".to_owned()].contains(val)
-            } else {
-                env::var("IGNORE_CASE").is_ok()
+        let ignore_case = match args.next() {
+            Some(arg) => {
+                vec!["true".to_owned(), "yes".to_owned(), "ignorecase".to_owned()].contains(&arg)
             }
+            None => env::var("IGNORE_CASE").is_ok(),
         };
 
         Ok(Config {
